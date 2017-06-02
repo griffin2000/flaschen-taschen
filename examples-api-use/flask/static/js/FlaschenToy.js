@@ -281,17 +281,17 @@ function webGLStart(w,h) {
 
     canvas.addEventListener('mousemove', function (evt) {
         var rect = canvas.getBoundingClientRect();
-
-        mousePos.x = Math.min(Math.max(mousePos.x, 0.0), 1.0);
-        mousePos.y = Math.min(Math.max(mousePos.y, 0.0), 1.0);
+        mousePos.x = 0.5 + ~~(evt.clientX - rect.left)
+        mousePos.y = 0.5 + ~~(evt.clientY - rect.top)
         mousePos.y = rect.height - mousePos.y
     });
 
     canvas.addEventListener('mousedown', function (evt) {
         var rect = canvas.getBoundingClientRect();
 
-        mouseClick.x = Math.min(Math.max(mouseClick.x, 0.0), 1.0);
-        mouseClick.y = Math.min(Math.max(mouseClick.y, 0.0), 1.0);
+        mouseClick.x = 0.5 + ~~(evt.clientX - rect.left)
+        mouseClick.y = 0.5 + ~~(evt.clientY - rect.top)
+
         mouseClick.y = rect.height - mouseClick.y
     });
 
