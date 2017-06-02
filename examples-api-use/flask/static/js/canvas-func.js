@@ -89,7 +89,7 @@ function init_canvas(w, h)
 
 
     animateFunction(
-        (ctx, t) =>
+        (ctx, webgl, t) =>
         {
             ctx.fillStyle = '#222222'
             ctx.clearRect(0, 0, w, h);
