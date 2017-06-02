@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html >
+<head>
+
+<title>FlaschenToy</title>
+<head>
+
+  <style>
+  </style>
+
+<body>
+
+<h2> Connected to Flaschen-Taschen on {{host}}:{{port}} </h2>
+<button type="button" id="update">Start Updating Flaschen Taschen</button>
+<div >
+	<div id="canvasDiv"><canvas width="{{ display_width }}" height="{{ display_height }}" id="ftCanvas"></canvas></div>
+</div>
+    <div id="errMsg"> </div>
+        <textarea cols="150" rows="30" id="updateFunc">
+            precision mediump float;
+            varying vec2 uv;
+            uniform vec2 mousePos;
+            uniform float t;
+
+            void main(void) {
+                float d = length(mousePos-uv.xy);
+                gl_FragColor = vec4(1.0+sin(d+t), 1.0+cos(d+t), 0, 1.0);
+            }
+        </textarea>
+        <script type="text/javascript" src="data/js/glMatrix-0.9.5.min.js"></script>
+
+        <script src="data/js/ft-flask.js"></script>
+        <script src="data/js/FlaschenToy.js"></script>
+        <script>
+            init_ft({{display_width}},{{display_height}})
+            webGLStart({{display_width}},{{display_height}})
+        </script>
+
+</body></html>

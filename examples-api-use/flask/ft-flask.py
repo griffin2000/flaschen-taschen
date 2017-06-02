@@ -21,6 +21,10 @@ def static_file(path):
 def process_canvas_data():
     datafile=request.files["data"]
     datablob=datafile.read()
+    f  = open("test.png", "wb")
+    f.write(datablob)
+    f.close()
+
     pngReader = png.Reader(bytes=datablob)
     (w,h,pixels,info) = pngReader.read()
     pixelLines = list(pixels)
@@ -37,3 +41,8 @@ def process_canvas_data():
 @app.route('/')
 def ft_home():
     return render_template('FTCanvas.html',port=port,host=host,display_width=display_width,display_height=display_height)
+
+@app.route('/FlaschenToy')
+def flaschen_toy():
+    return render_template('FlaschenToy.html',port=port,host=host,display_width=display_width,display_height=display_height)
+
