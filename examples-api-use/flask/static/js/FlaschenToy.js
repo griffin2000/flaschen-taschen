@@ -147,23 +147,47 @@ function initBuffers() {
 var updateShader = true;
 var lastUpdate = 0;
 var shaderOK = false;
-
-var mousePos = {x:0.0,y:0.0}
+var resolution = { w: 45, h: 35 }
+var mousePos = { x: 0.0, y: 0.0 }
+var mouseClick = { x: 0.0, y: 0.0 }
+var lastT = 0
+var frameNo = 0;
 
 function drawScene(canvasCtx, gl, t) {
 
     var updateFuncInput = document.getElementById('updateFunc');
 
+
     if(updateShader)
     {
-        var d = new Date();
-        var t = d.getTime();
         if (t - lastUpdate > 500)
         {
             lastUpdate = t;
             updateShader = false;
 
-            fragmentShaderSrc = updateFuncInput.value;
+            var shaderPrefix =
+                `
+                precision mediump float;
+
+                uniform vec3 iResolution;
+                uniform float iGlobalTime;
+                uniform float iGlobalDelta;
+                uniform float iGlobalFrame;
+                uniform vec4 iMouse;
+                uniform vec4 iDate;
+                `;
+            var shaderPostfix =
+                `
+
+                    void main(void ) {
+
+                        mainImage(gl_FragColor, gl_FragCoord.xy);
+                    }
+
+                `
+
+
+            fragmentShaderSrc = shaderPrefix + updateFuncInput.value + shaderPostfix;
 
             var errMsgDiv = document.getElementById('errMsg');
             errMsgDiv.innerHTML = ""
@@ -213,15 +237,28 @@ function drawScene(canvasCtx, gl, t) {
         return
 
     gl.useProgram(shaderProgram);
+    var deltaMS = t - lastT;
 
-
-    var offsetLoc = gl.getUniformLocation(shaderProgram, "t");
+    var offsetLoc = gl.getUniformLocation(shaderProgram, "iGlobalTime");
     if (offsetLoc != null)
         gl.uniform1f(offsetLoc, t / 1000);
-
-    var offsetLoc = gl.getUniformLocation(shaderProgram, "mousePos");
+    var offsetLoc = gl.getUniformLocation(shaderProgram, "iGlobalFrame");
     if (offsetLoc != null)
-        gl.uniform2f(offsetLoc, mousePos.x, mousePos.y);
+        gl.uniform1f(offsetLoc, frameNo);
+    var offsetLoc = gl.getUniformLocation(shaderProgram, "iGlobalDelta");
+    if (offsetLoc != null)
+        gl.uniform1f(offsetLoc, deltaMS/1000.0);
+
+
+    frameNo++;
+
+    var offsetLoc = gl.getUniformLocation(shaderProgram, "iMouse");
+    if (offsetLoc != null)
+        gl.uniform4f(offsetLoc, mousePos.x, mousePos.y, mouseClick.x, mouseClick.y);
+
+    var offsetLoc = gl.getUniformLocation(shaderProgram, "iResolution");
+    if (offsetLoc != null)
+        gl.uniform3f(offsetLoc, resolution.w, resolution.h, 1.0);
 
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -239,22 +276,23 @@ function drawScene(canvasCtx, gl, t) {
 function webGLStart(w,h) {
     var canvas = document.getElementById("ftCanvas");
 
-
-    function getMousePos(canvas, evt) {
-        var rect = canvas.getBoundingClientRect();
-        var mp = {
-            x: ((0.5 + evt.clientX - rect.left) / rect.width),
-            y: ((0.5 + evt.clientY - rect.top) / rect.height)
-        };
-        mp.x = Math.min(Math.max(mp.x, 0.0), 1.0);
-        mp.y = Math.min(Math.max(mp.y, 0.0), 1.0);
-        mp.y = 1.0-mp.y
-
-        return mp
-    }
+    resolution.w = w;
+    resolution.h = h;
 
     canvas.addEventListener('mousemove', function (evt) {
-        mousePos = getMousePos(canvas, evt);
+        var rect = canvas.getBoundingClientRect();
+
+        mousePos.x = Math.min(Math.max(mousePos.x, 0.0), 1.0);
+        mousePos.y = Math.min(Math.max(mousePos.y, 0.0), 1.0);
+        mousePos.y = rect.height - mousePos.y
+    });
+
+    canvas.addEventListener('mousedown', function (evt) {
+        var rect = canvas.getBoundingClientRect();
+
+        mouseClick.x = Math.min(Math.max(mouseClick.x, 0.0), 1.0);
+        mouseClick.y = Math.min(Math.max(mouseClick.y, 0.0), 1.0);
+        mouseClick.y = rect.height - mouseClick.y
     });
 
 

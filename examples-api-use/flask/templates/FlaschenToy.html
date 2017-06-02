@@ -17,16 +17,28 @@
 </div>
     <div id="errMsg"> </div>
         <textarea cols="150" rows="30" id="updateFunc">
-            precision mediump float;
-            varying vec2 uv;
-            uniform vec2 mousePos;
-            uniform float t;
+            // Mandelbrot set zoom, with smooth coloring (Douady-Hubbard) by iq]
+            // https://www.shadertoy.com/view/lllGWH
+            // Created by inigo quilez - iq/2015
+            // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
-            void main(void) {
-                float d = length(mousePos-uv.xy);
-                gl_FragColor = vec4(1.0+sin(d+t), 1.0+cos(d+t), 0, 1.0);
-            }
-        </textarea>
+            void mainImage( out vec4 f, in vec2 p )
+            {
+            float n = 0.;
+            vec2 c = vec2(-.745,.186) + 3. * (p.xy/iResolution.y-.5)*pow(.01,1.+cos(.2*iGlobalTime)), z=c*n;
+
+            for( int i=0; i<128; i++ )
+                                 {
+                                 z=vec2( z.x*z.x - z.y*z.y, 2.*z.x*z.y ) + c;
+                                 if( dot(z,z)>
+                1e4 ) break;
+
+                n++;
+                }
+
+                f = .5 + .5*cos( vec4(3,4,11,0) + .05*(n - log2(log2(dot(z,z)))) );
+                }
+</textarea>
         <script type="text/javascript" src="data/js/glMatrix-0.9.5.min.js"></script>
 
         <script src="data/js/ft-flask.js"></script>
